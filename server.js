@@ -12,6 +12,7 @@ const crypto = require('crypto');
 const sslChecker = require('ssl-checker');
 const publicIp = require('public-ip');
 const net = require('net');
+const axios = require('axios');
 
 const app = express();
 app.use(cors());
@@ -38,13 +39,17 @@ app.post('/api/ping', async (req, res) => {
 // Traceroute Utility
 app.post('/api/traceroute', (req, res) => {
   const { host } = req.body;
-  traceroute.trace(host, (err, hops) => {
-    if (err) {
-      res.status(500).json({ error: err.message });
-    } else {
-      res.json(hops);
-    }
-  });
+  try {
+    traceroute.trace(host, (err, hops) => {
+      if (err) {
+        res.status(500).json({ error: err.message });
+      } else {
+        res.json({ hops });
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 });
 
 // Port Checker Utility
@@ -93,7 +98,7 @@ app.post('/api/latency-test', async (req, res) => {
 app.post('/api/ssl-checker', async (req, res) => {
   const { host } = req.body;
   try {
-    const result = await sslChecker(host);
+    const result = await sslChecker(host, { method: 'GET', port: 443 });
     res.json(result);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -103,12 +108,9 @@ app.post('/api/ssl-checker', async (req, res) => {
 // Password Strength Checker Utility
 app.post('/api/password-strength', (req, res) => {
   const { password } = req.body;
-  // Simple password strength check
-  const length = password.length;
-  let strength = 'Weak';
-  if (length > 12) strength = 'Strong';
-  else if (length > 8) strength = 'Moderate';
-  res.json({ strength });
+  const zxcvbn = require('zxcvbn');
+  const result = zxcvbn(password);
+  res.json({ score: result.score, feedback: result.feedback });
 });
 
 // Hash Generator Utility
@@ -148,16 +150,14 @@ app.post('/api/decrypt', (req, res) => {
 });
 
 // HTTP Header Security Analysis
-app.post('/api/header-analysis', (req, res) => {
+app.post('/api/header-analysis', async (req, res) => {
   const { url } = req.body;
-  const axios = require('axios');
-  axios.head(url)
-    .then(response => {
-      res.json(response.headers);
-    })
-    .catch(error => {
-      res.status(500).json({ error: error.message });
-    });
+  try {
+    const response = await axios.head(url);
+    res.json(response.headers);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 });
 
 // -----------------------------

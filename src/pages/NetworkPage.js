@@ -1,3 +1,4 @@
+// ...imports
 import React from 'react';
 import { Routes, Route, Link } from 'react-router-dom';
 import Ping from '../components/network/Ping';
@@ -12,25 +13,28 @@ function NetworkPage() {
     <div style={{ padding: '20px' }}>
       <h2>Network Utilities</h2>
       <Routes>
-        <Route path="/" element={
-          <List>
-            <ListItem button component={Link} to="ping">
-              <ListItemText primary="Ping" />
-            </ListItem>
-            <ListItem button component={Link} to="traceroute">
-              <ListItemText primary="Traceroute" />
-            </ListItem>
-            <ListItem button component={Link} to="port-checker">
-              <ListItemText primary="Port Checker" />
-            </ListItem>
-            <ListItem button component={Link} to="speed-test">
-              <ListItemText primary="Network Speed Test" />
-            </ListItem>
-            <ListItem button component={Link} to="latency-test">
-              <ListItemText primary="Latency Test" />
-            </ListItem>
-          </List>
-        } />
+        <Route
+          path="/"
+          element={
+            <List>
+              <ListItem button component={Link} to="ping">
+                <ListItemText primary="Ping" />
+              </ListItem>
+              <ListItem button component={Link} to="traceroute">
+                <ListItemText primary="Traceroute" />
+              </ListItem>
+              <ListItem button component={Link} to="port-checker">
+                <ListItemText primary="Port Checker" />
+              </ListItem>
+              <ListItem button component={Link} to="speed-test">
+                <ListItemText primary="Network Speed Test" />
+              </ListItem>
+              <ListItem button component={Link} to="latency-test">
+                <ListItemText primary="Latency Test" />
+              </ListItem>
+            </List>
+          }
+        />
         <Route path="ping" element={<Ping />} />
         <Route path="traceroute" element={<Traceroute />} />
         <Route path="port-checker" element={<PortChecker />} />

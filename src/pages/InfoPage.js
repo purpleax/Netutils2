@@ -12,25 +12,28 @@ function InfoPage() {
     <div style={{ padding: '20px' }}>
       <h2>Information Utilities</h2>
       <Routes>
-        <Route path="/" element={
-          <List>
-            <ListItem button component={Link} to="ip-lookup">
-              <ListItemText primary="IP Address Lookup" />
-            </ListItem>
-            <ListItem button component={Link} to="browser-info">
-              <ListItemText primary="Browser Information" />
-            </ListItem>
-            <ListItem button component={Link} to="http-headers">
-              <ListItemText primary="HTTP Headers Viewer" />
-            </ListItem>
-            <ListItem button component={Link} to="user-agent-parser">
-              <ListItemText primary="User Agent Parser" />
-            </ListItem>
-            <ListItem button component={Link} to="geoip-lookup">
-              <ListItemText primary="GeoIP Lookup" />
-            </ListItem>
-          </List>
-        } />
+        <Route
+          path="/"
+          element={
+            <List>
+              <ListItem button component={Link} to="ip-lookup">
+                <ListItemText primary="IP Address Lookup" />
+              </ListItem>
+              <ListItem button component={Link} to="browser-info">
+                <ListItemText primary="Browser Information" />
+              </ListItem>
+              <ListItem button component={Link} to="http-headers">
+                <ListItemText primary="HTTP Headers Viewer" />
+              </ListItem>
+              <ListItem button component={Link} to="user-agent-parser">
+                <ListItemText primary="User Agent Parser" />
+              </ListItem>
+              <ListItem button component={Link} to="geoip-lookup">
+                <ListItemText primary="GeoIP Lookup" />
+              </ListItem>
+            </List>
+          }
+        />
         <Route path="ip-lookup" element={<IPLookup />} />
         <Route path="browser-info" element={<BrowserInfo />} />
         <Route path="http-headers" element={<HTTPHeaders />} />

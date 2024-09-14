@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { TextField, Typography, Button } from '@mui/material';
+import { TextField, Button, Typography } from '@mui/material';
 
 function PasswordStrength() {
   const [password, setPassword] = useState('');
@@ -8,10 +8,10 @@ function PasswordStrength() {
 
   const checkStrength = async () => {
     try {
-      const response = await axios.post('http://localhost:3001/api/password-strength', { password });
-      setStrength(response.data.strength);
+      const response = await axios.post('/api/password-strength', { password });
+      setStrength(response.data);
     } catch (error) {
-      setStrength('Error checking password strength');
+      setStrength({ error: error.message });
     }
   };
 
@@ -25,13 +25,19 @@ function PasswordStrength() {
         onChange={(e) => setPassword(e.target.value)}
         variant="outlined"
         margin="normal"
+        fullWidth
       />
-      <br />
-      <Button variant="contained" color="primary" onClick={checkStrength}>
+      <Button variant="contained" color="primary" onClick={checkStrength} style={{ marginTop: '10px' }}>
         Check Strength
       </Button>
       {strength && (
-        <Typography variant="h6">Strength: {strength}</Typography>
+        <div style={{ marginTop: '20px' }}>
+          <Typography variant="h6">Score: {strength.score} / 4</Typography>
+          <Typography variant="body1">Feedback: {strength.feedback.warning}</Typography>
+          <Typography variant="body2">
+            {strength.feedback.suggestions && strength.feedback.suggestions.join(' ')}
+          </Typography>
+        </div>
       )}
     </div>
   );
