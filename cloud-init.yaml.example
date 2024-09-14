@@ -43,7 +43,7 @@ runcmd:
   - sudo npm install -g pm2
 
   # Clone your project repository
-  - git clone https://github.com/yourusername/yourrepository.git /home/ubuntu/network-utilities
+  - git clone https://github.com/purpleax/Netutils2.git /home/ubuntu/network-utilities
 
   # Install backend dependencies
   - cd /home/ubuntu/network-utilities/backend
