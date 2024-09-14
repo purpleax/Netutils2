@@ -1,0 +1,81 @@
+#cloud-config
+package_update: true
+package_upgrade: true
+
+packages:
+  - git
+  - nginx
+  - build-essential
+  - curl
+  - ufw
+
+write_files:
+  - path: /etc/nginx/sites-available/network-utilities
+    content: |
+      server {
+          listen 80 default_server;
+          listen [::]:80 default_server;
+          server_name _;
+          root /home/ubuntu/network-utilities/frontend/build;
+          index index.html index.htm;
+
+          location / {
+              try_files $uri /index.html;
+          }
+
+          location /api/ {
+              proxy_pass http://localhost:3001/;
+              proxy_http_version 1.1;
+              proxy_set_header Upgrade $http_upgrade;
+              proxy_set_header Connection 'upgrade';
+              proxy_set_header Host $host;
+              proxy_cache_bypass $http_upgrade;
+          }
+      }
+    permissions: '0644'
+
+runcmd:
+  # Install Node.js 18.x
+  - curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
+  - sudo apt-get install -y nodejs
+
+  # Install PM2 globally
+  - sudo npm install -g pm2
+
+  # Clone your project repository
+  - git clone https://github.com/yourusername/yourrepository.git /home/ubuntu/network-utilities
+
+  # Install backend dependencies
+  - cd /home/ubuntu/network-utilities/backend
+  - npm install
+
+  # Install frontend dependencies and build the frontend
+  - cd /home/ubuntu/network-utilities/frontend
+  - npm install
+  - npm run build
+
+  # Start the backend server using PM2
+  - cd /home/ubuntu/network-utilities/backend
+  - pm2 start server.js --name network-backend
+
+  # Enable PM2 startup script
+  - pm2 startup systemd -u ubuntu --hp /home/ubuntu
+  - pm2 save
+
+  # Configure Nginx
+  - sudo rm /etc/nginx/sites-enabled/default
+  - sudo ln -s /etc/nginx/sites-available/network-utilities /etc/nginx/sites-enabled/
+  - sudo systemctl restart nginx
+
+  # Configure UFW Firewall
+  - sudo ufw allow 80
+  - sudo ufw allow 22
+  - sudo ufw --force enable
+
+final_message: "The system is finally up, after $UPTIME seconds"
+
+network:
+  version: 2
+  ethernets:
+    eth0:
+      dhcp4: true
