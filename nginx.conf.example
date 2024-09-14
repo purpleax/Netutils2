@@ -1,0 +1,31 @@
+server {
+    listen 80;
+    server_name your_domain.com www.your_domain.com;  # Replace with your domain
+
+    # Redirect HTTP to HTTPS (if using SSL)
+    # Uncomment the following lines if SSL is set up
+    # return 301 https://$host$request_uri;
+
+    root /var/www/your_project/client/build;
+    index index.html index.htm;
+
+    # Serve React Frontend
+    location / {
+        try_files $uri /index.html;
+    }
+
+    # Proxy API requests to Node.js backend
+    location /api/ {
+        proxy_pass http://localhost:3001/;  # Backend server
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_cache_bypass $http_upgrade;
+    }
+
+    # Optional: Serve static assets from backend if needed
+    # location /static/ {
+    #     proxy_pass http://localhost:3001/static/;
+    # }
+}
