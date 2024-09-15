@@ -10,6 +10,291 @@ packages:
   - ufw
 
 write_files:
+  # Backend server.js
+  - path: /home/ubuntu/network-utilities/backend/server.js
+    content: |
+      // server.js
+      const express = require('express');
+      const cors = require('cors');
+      const ping = require('ping');
+      const traceroute = require('traceroute');
+      const whois = require('whois-json');
+      const dns = require('dns');
+      const geoip = require('geoip-lite');
+      const useragent = require('express-useragent');
+      const speedTest = require('speedtest-net');
+      const crypto = require('crypto');
+      const sslChecker = require('ssl-checker');
+      const publicIp = require('public-ip');
+      const net = require('net');
+      const axios = require('axios');
+      const zxcvbn = require('zxcvbn');
+
+      const app = express();
+      app.use(cors());
+      app.use(express.json());
+      app.use(useragent.express());
+
+      const port = 3001;
+
+      // Add your API endpoints here
+      // For brevity, only the Ping endpoint is included. Add others as needed.
+
+      // Ping Utility
+      app.post('/api/ping', async (req, res) => {
+        const { host } = req.body;
+        try {
+          const result = await ping.promise.probe(host);
+          res.json(result);
+        } catch (error) {
+          res.status(500).json({ error: error.message });
+        }
+      });
+
+      // Start the server
+      app.listen(port, () => {
+        console.log(`Server is running on port ${port}`);
+      });
+
+    permissions: '0644'
+
+  # Backend package.json
+  - path: /home/ubuntu/network-utilities/backend/package.json
+    content: |
+      {
+        "name": "network-utilities-backend",
+        "version": "1.0.0",
+        "description": "Backend server for the Network Utilities website",
+        "main": "server.js",
+        "scripts": {
+          "start": "node server.js"
+        },
+        "dependencies": {
+          "axios": "^1.5.0",
+          "cors": "^2.8.5",
+          "crypto": "^1.0.1",
+          "dns": "^0.2.2",
+          "express": "^4.18.2",
+          "express-useragent": "^1.0.15",
+          "geoip-lite": "^1.4.2",
+          "net": "^1.0.2",
+          "ping": "^0.4.0",
+          "public-ip": "^4.0.4",
+          "speedtest-net": "^3.2.0",
+          "ssl-checker": "^4.0.4",
+          "traceroute": "^1.0.1",
+          "whois-json": "^3.2.0",
+          "zxcvbn": "^4.4.2"
+        }
+      }
+
+    permissions: '0644'
+
+  # Frontend package.json
+  - path: /home/ubuntu/network-utilities/frontend/package.json
+    content: |
+      {
+        "name": "network-utilities-frontend",
+        "version": "1.0.0",
+        "private": true,
+        "dependencies": {
+          "@emotion/react": "^11.11.0",
+          "@emotion/styled": "^11.11.0",
+          "@mui/icons-material": "^5.14.0",
+          "@mui/material": "^5.14.8",
+          "axios": "^1.5.0",
+          "react": "^18.2.0",
+          "react-dom": "^18.2.0",
+          "react-router-dom": "^6.14.1",
+          "react-scripts": "5.0.1"
+        },
+        "scripts": {
+          "start": "react-scripts start",
+          "build": "react-scripts build"
+        }
+      }
+
+    permissions: '0644'
+
+  # Frontend public/index.html
+  - path: /home/ubuntu/network-utilities/frontend/public/index.html
+    content: |
+      <!DOCTYPE html>
+      <html lang="en">
+      <head>
+        <meta charset="utf-8" />
+        <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>Network Utilities</title>
+      </head>
+      <body>
+        <noscript>You need to enable JavaScript to run this app.</noscript>
+        <div id="root"></div>
+      </body>
+      </html>
+
+    permissions: '0644'
+
+  # Frontend src/index.js
+  - path: /home/ubuntu/network-utilities/frontend/src/index.js
+    content: |
+      import React from 'react';
+      import ReactDOM from 'react-dom/client';
+      import App from './App';
+
+      const root = ReactDOM.createRoot(document.getElementById('root'));
+      root.render(<App />);
+
+    permissions: '0644'
+
+  # Frontend src/App.js
+  - path: /home/ubuntu/network-utilities/frontend/src/App.js
+    content: |
+      import React from 'react';
+      import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+      import Navbar from './components/Navbar';
+      import NetworkPage from './pages/NetworkPage';
+      import SecurityPage from './pages/SecurityPage';
+      import DNSPage from './pages/DNSPage';
+      import InfoPage from './pages/InfoPage';
+
+      function App() {
+        return (
+          <Router>
+            <Navbar />
+            <Routes>
+              <Route path="/network/*" element={<NetworkPage />} />
+              <Route path="/security/*" element={<SecurityPage />} />
+              <Route path="/dns/*" element={<DNSPage />} />
+              <Route path="/info/*" element={<InfoPage />} />
+              <Route path="/" element={<NetworkPage />} />
+            </Routes>
+          </Router>
+        );
+      }
+
+      export default App;
+
+    permissions: '0644'
+
+  # Frontend src/components/Navbar.js
+  - path: /home/ubuntu/network-utilities/frontend/src/components/Navbar.js
+    content: |
+      import React from 'react';
+      import { AppBar, Toolbar, Typography, Button } from '@mui/material';
+      import { Link } from 'react-router-dom';
+
+      function Navbar() {
+        return (
+          <AppBar position="static">
+            <Toolbar>
+              <Typography variant="h6" style={{ flexGrow: 1 }}>
+                Network Utilities
+              </Typography>
+              <Button color="inherit" component={Link} to="/network">
+                Network
+              </Button>
+              <Button color="inherit" component={Link} to="/security">
+                Security
+              </Button>
+              <Button color="inherit" component={Link} to="/dns">
+                DNS
+              </Button>
+              <Button color="inherit" component={Link} to="/info">
+                Info
+              </Button>
+            </Toolbar>
+          </AppBar>
+        );
+      }
+
+      export default Navbar;
+
+    permissions: '0644'
+
+  # Frontend src/pages/NetworkPage.js
+  - path: /home/ubuntu/network-utilities/frontend/src/pages/NetworkPage.js
+    content: |
+      import React from 'react';
+      import { Routes, Route, Link } from 'react-router-dom';
+      import Ping from '../components/network/Ping';
+      import { List, ListItem, ListItemText } from '@mui/material';
+
+      function NetworkPage() {
+        return (
+          <div style={{ padding: '20px' }}>
+            <h2>Network Utilities</h2>
+            <Routes>
+              <Route
+                path="/"
+                element={
+                  <List>
+                    <ListItem button component={Link} to="ping">
+                      <ListItemText primary="Ping" />
+                    </ListItem>
+                    <!-- Add other utilities as needed -->
+                  </List>
+                }
+              />
+              <Route path="ping" element={<Ping />} />
+              <!-- Add other routes as needed -->
+            </Routes>
+          </div>
+        );
+      }
+
+      export default NetworkPage;
+
+    permissions: '0644'
+
+  # Frontend src/components/network/Ping.js
+  - path: /home/ubuntu/network-utilities/frontend/src/components/network/Ping.js
+    content: |
+      import React, { useState } from 'react';
+      import axios from 'axios';
+      import { TextField, Button, Typography, CircularProgress } from '@mui/material';
+
+      function Ping() {
+        const [host, setHost] = useState('');
+        const [result, setResult] = useState(null);
+        const [loading, setLoading] = useState(false);
+
+        const handlePing = async () => {
+          setLoading(true);
+          try {
+            const response = await axios.post('/api/ping', { host });
+            setResult(response.data);
+          } catch (error) {
+            setResult({ error: error.message });
+          }
+          setLoading(false);
+        };
+
+        return (
+          <div>
+            <Typography variant="h4">Ping Utility</Typography>
+            <TextField
+              label="Host"
+              value={host}
+              onChange={(e) => setHost(e.target.value)}
+              variant="outlined"
+              margin="normal"
+            />
+            <br />
+            <Button variant="contained" color="primary" onClick={handlePing}>
+              Ping
+            </Button>
+            {loading && <CircularProgress />}
+            {result && <pre>{JSON.stringify(result, null, 2)}</pre>}
+          </div>
+        );
+      }
+
+      export default Ping;
+
+    permissions: '0644'
+
+  # Nginx configuration
   - path: /etc/nginx/sites-available/network-utilities
     content: |
       server {
@@ -32,6 +317,7 @@ write_files:
               proxy_cache_bypass $http_upgrade;
           }
       }
+
     permissions: '0644'
 
 runcmd:
@@ -42,8 +328,12 @@ runcmd:
   # Install PM2 globally
   - sudo npm install -g pm2
 
-  # Clone your project repository
-  - git clone https://github.com/purpleax/Netutils2.git /home/ubuntu/network-utilities
+  # Create necessary directories
+  - mkdir -p /home/ubuntu/network-utilities/backend
+  - mkdir -p /home/ubuntu/network-utilities/frontend/src/components/network
+  - mkdir -p /home/ubuntu/network-utilities/frontend/src/components
+  - mkdir -p /home/ubuntu/network-utilities/frontend/src/pages
+  - mkdir -p /home/ubuntu/network-utilities/frontend/src
 
   # Install backend dependencies
   - cd /home/ubuntu/network-utilities/backend
