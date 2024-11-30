@@ -10,7 +10,7 @@ RUN npm run build
 FROM node:18
 WORKDIR /app
 
-# Install essential utilities
+# Install essential utilities via APT
 RUN apt-get update && apt-get install -y \
     whois \
     dnsutils \
@@ -18,12 +18,8 @@ RUN apt-get update && apt-get install -y \
     net-tools \
     curl \
     nmap \
-    python3 \
-    python3-pip \
+    wafw00f \
     && rm -rf /var/lib/apt/lists/*
-
-# Install wafw00f using pip
-RUN pip install wafw00f
 
 # Install backend dependencies
 COPY backend/package*.json ./
