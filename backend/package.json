@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "Backend server for the Network Utilities website",
   "main": "server.js",
-"scripts": {
+  "scripts": {
     "start": "node server.js"
   },
   "dependencies": {
@@ -17,7 +17,6 @@
     "net": "^1.0.2",
     "ping": "^0.4.0",
     "public-ip": "^4.0.4",
-    "speedtest-net": "^3.2.0",
     "ssl-checker": "^4.0.4",
     "traceroute": "^1.0.1",
     "whois-json": "^3.2.0",
