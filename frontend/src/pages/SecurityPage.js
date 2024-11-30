@@ -1,4 +1,3 @@
-// ...imports
 import React from 'react';
 import { Routes, Route, Link } from 'react-router-dom';
 import SSLChecker from '../components/security/SSLChecker';

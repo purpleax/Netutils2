@@ -105,6 +105,7 @@ app.post('/api/ssl-checker', async (req, res) => {
   }
 });
 
+
 // Password Strength Checker Utility
 app.post('/api/password-strength', (req, res) => {
   const { password } = req.body;
