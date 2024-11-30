@@ -66,14 +66,16 @@ app.post('/api/port-checker', (req, res) => {
 });
 
 // Latency Test Utility
-app.post('/api/latency-test', async (req, res) => {
+app.post("/api/latency-test", async (req, res) => {
   const { host } = req.body;
+
   if (!host) {
-    return res.status(400).json({ error: "Host is required" });
+    return res.status(400).json({ error: "Host is required." });
   }
+
   try {
     const startTime = Date.now();
-    const result = await ping.promise.probe(host);
+    const result = await ping.promise.probe(host); // Run ping test
     if (!result.alive) {
       throw new Error(`Host ${host} is unreachable.`);
     }
@@ -84,6 +86,7 @@ app.post('/api/latency-test', async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
+
 
 
 
