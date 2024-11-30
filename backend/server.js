@@ -1,6 +1,6 @@
-// server.js
 const express = require('express');
 const cors = require('cors');
+const path = require('path');
 const ping = require('ping');
 const traceroute = require('traceroute');
 const whois = require('whois-json');
@@ -8,10 +8,9 @@ const dns = require('dns');
 const geoip = require('geoip-lite');
 const useragent = require('express-useragent');
 const crypto = require('crypto');
-const sslChecker = require('ssl-checker');
-const publicIp = require('public-ip');
 const net = require('net');
 const axios = require('axios');
+const zxcvbn = require('zxcvbn');
 
 const app = express();
 app.use(cors());
@@ -66,7 +65,6 @@ app.post('/api/port-checker', (req, res) => {
   }).connect(port, host);
 });
 
-
 // Latency Test Utility
 app.post('/api/latency-test', async (req, res) => {
   const { host } = req.body;
@@ -88,18 +86,20 @@ app.post('/api/latency-test', async (req, res) => {
 app.post('/api/ssl-checker', async (req, res) => {
   const { host } = req.body;
   try {
-    const result = await sslChecker(host, { method: 'GET', port: 443 });
-    res.json(result);
+    const result = await axios.get(`https://${host}`);
+    res.json({
+      validFrom: result.request.socket.getPeerCertificate().valid_from,
+      validTo: result.request.socket.getPeerCertificate().valid_to,
+      issuer: result.request.socket.getPeerCertificate().issuer,
+    });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 });
 
-
 // Password Strength Checker Utility
 app.post('/api/password-strength', (req, res) => {
   const { password } = req.body;
-  const zxcvbn = require('zxcvbn');
   const result = zxcvbn(password);
   res.json({ score: result.score, feedback: result.feedback });
 });
@@ -110,42 +110,6 @@ app.post('/api/hash-generator', (req, res) => {
   try {
     const hash = crypto.createHash(algorithm).update(data).digest('hex');
     res.json({ hash });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
-
-// Data Encryption/Decryption Tool
-app.post('/api/encrypt', (req, res) => {
-  const { data, algorithm, key } = req.body;
-  try {
-    const cipher = crypto.createCipher(algorithm, key);
-    let encrypted = cipher.update(data, 'utf8', 'hex');
-    encrypted += cipher.final('hex');
-    res.json({ encrypted });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
-
-app.post('/api/decrypt', (req, res) => {
-  const { data, algorithm, key } = req.body;
-  try {
-    const decipher = crypto.createDecipher(algorithm, key);
-    let decrypted = decipher.update(data, 'hex', 'utf8');
-    decrypted += decipher.final('utf8');
-    res.json({ decrypted });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
-
-// HTTP Header Security Analysis
-app.post('/api/header-analysis', async (req, res) => {
-  const { url } = req.body;
-  try {
-    const response = await axios.head(url);
-    res.json(response.headers);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -190,30 +154,6 @@ app.post('/api/whois', async (req, res) => {
   }
 });
 
-// MX Record Lookup Utility
-app.post('/api/mx-lookup', (req, res) => {
-  const { domain } = req.body;
-  dns.resolveMx(domain, (err, addresses) => {
-    if (err) {
-      res.status(500).json({ error: err.message });
-    } else {
-      res.json(addresses);
-    }
-  });
-});
-
-// NS Record Lookup Utility
-app.post('/api/ns-lookup', (req, res) => {
-  const { domain } = req.body;
-  dns.resolveNs(domain, (err, addresses) => {
-    if (err) {
-      res.status(500).json({ error: err.message });
-    } else {
-      res.json(addresses);
-    }
-  });
-});
-
 // -----------------------------
 // Info Category
 // -----------------------------
@@ -221,9 +161,8 @@ app.post('/api/ns-lookup', (req, res) => {
 // IP Address Lookup
 app.get('/api/ip-lookup', async (req, res) => {
   try {
-    const ip = await publicIp.v4();
-    const geo = geoip.lookup(ip);
-    res.json({ ip, geo });
+    const ip = geoip.lookup(req.ip);
+    res.json({ ip, geo: ip });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -239,20 +178,21 @@ app.get('/api/http-headers', (req, res) => {
   res.json(req.headers);
 });
 
-// User Agent Parser
-app.get('/api/user-agent', (req, res) => {
-  res.json({ userAgent: req.headers['user-agent'] });
-});
+// -----------------------------
+// Serve Frontend Build Files
+// -----------------------------
 
-// GeoIP Lookup
-app.post('/api/geoip-lookup', (req, res) => {
-  const { ip } = req.body;
-  const geo = geoip.lookup(ip);
-  res.json({ ip, geo });
+// Serve static files from the React app
+app.use(express.static(path.join(__dirname, 'frontend/build')));
+
+// Catch-all handler for all non-API routes
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'frontend/build', 'index.html'));
 });
 
 // -----------------------------
-
+// Start the Server
+// -----------------------------
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });
