@@ -1,21 +1,14 @@
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import Navbar from './components/Navbar';
-import NetworkPage from './pages/NetworkPage';
-import SecurityPage from './pages/SecurityPage';
-import DNSPage from './pages/DNSPage';
-import InfoPage from './pages/InfoPage';
+import React from "react";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import HomePage from "./pages/HomePage";
+import CategoryPage from "./pages/CategoryPage";
 
 function App() {
   return (
     <Router>
-      <Navbar />
       <Routes>
-        <Route path="/network/*" element={<NetworkPage />} />
-        <Route path="/security/*" element={<SecurityPage />} />
-        <Route path="/dns/*" element={<DNSPage />} />
-        <Route path="/info/*" element={<InfoPage />} />
-        <Route path="/" element={<NetworkPage />} />
+        <Route path="/" element={<HomePage />} />
+        <Route path="/category/:name" element={<CategoryPage />} />
       </Routes>
     </Router>
   );

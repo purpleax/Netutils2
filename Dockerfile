@@ -6,33 +6,33 @@ RUN npm install
 COPY frontend .
 RUN npm run build
 
-# Step 2: Setup Backend with Utilities
+# Step 2: Setup Backend with Frontend Files and Utilities
 FROM node:18
 WORKDIR /app
 
-# Install necessary system tools, including utilities for DNS, network, and security
+# Install essential utilities
 RUN apt-get update && apt-get install -y \
-    python3 \
-    python3-pip \
     whois \
     dnsutils \
+    traceroute \
     net-tools \
     curl \
-    traceroute \
     nmap \
-    ssl-cert \
-    git \
-    wafw00f \
+    python3 \
+    python3-pip \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy backend package files and install dependencies
+# Install wafw00f using pip
+RUN pip install wafw00f
+
+# Install backend dependencies
 COPY backend/package*.json ./
 RUN npm install
 
 # Copy backend source code
 COPY backend .
 
-# Copy the frontend build files into the backend's static folder
+# Copy the built frontend files into the backend
 COPY --from=build-frontend /frontend/build ./frontend/build
 
 # Expose the backend server port
