@@ -68,15 +68,25 @@ app.post('/api/port-checker', (req, res) => {
 // Latency Test Utility
 app.post('/api/latency-test', async (req, res) => {
   const { host } = req.body;
+  if (!host) {
+    return res.status(400).json({ error: "Host is required" });
+  }
   try {
     const startTime = Date.now();
-    await ping.promise.probe(host);
+    const result = await ping.promise.probe(host);
+    if (!result.alive) {
+      throw new Error(`Host ${host} is unreachable.`);
+    }
     const latency = Date.now() - startTime;
     res.json({ latency });
   } catch (error) {
+    console.error(`Latency test failed for host ${host}: ${error.message}`);
     res.status(500).json({ error: error.message });
   }
 });
+
+
+
 
 // -----------------------------
 // Security Category
