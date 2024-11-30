@@ -7,7 +7,6 @@ const whois = require('whois-json');
 const dns = require('dns');
 const geoip = require('geoip-lite');
 const useragent = require('express-useragent');
-const speedTest = require('speedtest-net');
 const crypto = require('crypto');
 const sslChecker = require('ssl-checker');
 const publicIp = require('public-ip');
@@ -67,15 +66,6 @@ app.post('/api/port-checker', (req, res) => {
   }).connect(port, host);
 });
 
-// Network Speed Test Utility
-app.get('/api/speed-test', async (req, res) => {
-  try {
-    const result = await speedTest({ acceptLicense: true });
-    res.json(result);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
 
 // Latency Test Utility
 app.post('/api/latency-test', async (req, res) => {
