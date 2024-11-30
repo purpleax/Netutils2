@@ -10,8 +10,9 @@ RUN npm run build
 FROM node:18
 WORKDIR /app
 
-# Install essential utilities via APT
+# Install essential utilities, including ping
 RUN apt-get update && apt-get install -y \
+    iputils-ping \
     whois \
     dnsutils \
     traceroute \
